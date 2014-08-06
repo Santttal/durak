@@ -4,17 +4,8 @@ class Game
 {
     const PLAYER_CARDS_NUMBER = 6;
 
-    private $cardTypes = array(
-        '2', '3', '4', '5', '6', '7',
-        '8', '9', 'V', 'D', 'K', 'T',
-    );
-
-    private $suites = array(
-        "spades", //пики
-        "hearts", //черви
-        "clubs", //крести
-        "diamonds", //бубны
-    );
+    private $cardTypes;
+    private $suites;
 
     private $cards = array();
     private $playersCards = array();
@@ -27,6 +18,8 @@ class Game
     public function __construct($playersNumber)
     {
         $this->playersNumber = $playersNumber;
+        $this->cardTypes = DurakConfig::getCardTypes();
+        $this->suites = DurakConfig::getCardSuites();
         $this->createCards();
         $this->dealCards();
     }
@@ -76,46 +69,53 @@ class Game
         $this->currentPlayer = $this->getNextPlayer();
     }
 
+    /**
+     * @param Card $attackCard
+     * @param Card $defendCard
+     */
     public function canBeat($attackCard, $defendCard)
     {
         $canBeat = false;
-        if ($attackCard['suite'] == $this->trump['suite'] && $defendCard['suite'] == $this->trump['suite']) {
 
-        } elseif ($attackCard['suite'] == $this->trump['suite'] && $defendCard['suite'] != $this->trump['suite']) {
+        if ($attackCard->suite == $defendCard->suite) {
+
+        } else {
+
+        }
+
+
+        if ($attackCard->suite == $this->trump->suite && $defendCard->suite == $this->trump->suite) {
+
+        } elseif ($attackCard->suite == $this->trump->suite && $defendCard->suite != $this->trump->suite) {
             $canBeat = false;
-        } elseif ($attackCard['suite'] != $this->trump['suite'] && $defendCard['suite'] == $this->trump['suite']) {
+        } elseif ($attackCard->suite != $this->trump->suite && $defendCard->suite == $this->trump->suite) {
             $canBeat = true;
         } else {
             if (
-                ($attackCard['suite'] == $defendCard['suite'])
-                && array_search($attackCard['type'], $this->cardTypes) <
-                   array_search($defendCard['type'], $this->cardTypes)
+                ($attackCard->suite == $defendCard->suite)
+                && array_search($attackCard->type, $this->cardTypes) <
+                   array_search($defendCard->type, $this->cardTypes)
             ) {
                 $canBeat = true;
             }
         }
     }
-}
 
-return $canBeat;
-}
+    function finishStep()
+    {
+        unset($this->cardsOnTheTable);
+        $this->currentPlayer = $this->getNextPlayer();
+    }
 
-public
-function finishStep()
-{
-    unset($this->cardsOnTheTable);
-    $this->currentPlayer = $this->getNextPlayer();
-}
+    //private function isCard
 
-private
-function getNextPlayer()
-{
-    return $this->currentPlayer + 1 <> $this->playersNumber ? $this->currentPlayer + 1 : 0;
-}
+    private function getNextPlayer()
+    {
+        return $this->currentPlayer + 1 <> $this->playersNumber ? $this->currentPlayer + 1 : 0;
+    }
 
-private
-function createCards()
-{
+    private function createCards()
+    {
 //        foreach ($this->cardTypes as $cardType) {
 //            foreach ($this->suites as $suite) {
 //                $this->cards[] = array(
@@ -126,200 +126,56 @@ function createCards()
 //        }
 //        shuffle($this->cards);
 //        var_export($this->cards);
-    $this->cards = array(
-        array(
-            'type' => 'T',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '9',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '8',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '3',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '4',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '4',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '6',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '7',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => 'V',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '6',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => 'K',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '3',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => 'T',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => 'D',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '5',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => 'K',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => 'V',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => 'T',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '3',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => 'K',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '8',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '9',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '6',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '7',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '2',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '7',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '2',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '7',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => 'D',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '2',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => 'V',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '3',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => 'D',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => 'T',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '8',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => '9',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '5',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '4',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => 'K',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '9',
-            'suite' => 'spades',
-        ),
-        array(
-            'type' => 'D',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '4',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '5',
-            'suite' => 'clubs',
-        ),
-        array(
-            'type' => '5',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '8',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => '2',
-            'suite' => 'diamonds',
-        ),
-        array(
-            'type' => '6',
-            'suite' => 'hearts',
-        ),
-        array(
-            'type' => 'V',
-            'suite' => 'hearts',
-        ),
-    );
-}
+        $this->cards = array(
+            new Card('T', 'clubs'),
+            new Card('9', 'hearts'),
+            new Card('8', 'diamonds'),
+            new Card('3', 'spades'),
+            new Card('4', 'hearts'),
+            new Card('4', 'diamonds'),
+            new Card('6', 'clubs'),
+            new Card('7', 'diamonds'),
+            new Card('V', 'spades'),
+            new Card('6', 'diamonds'),
+            new Card('K', 'diamonds'),
+            new Card('3', 'diamonds'),
+            new Card('T', 'diamonds'),
+            new Card('D', 'spades'),
+            new Card('5', 'spades'),
+            new Card('K', 'spades'),
+            new Card('V', 'diamonds'),
+            new Card('T', 'hearts'),
+            new Card('3', 'hearts'),
+            new Card('K', 'clubs'),
+            new Card('8', 'clubs'),
+            new Card('9', 'diamonds'),
+            new Card('6', 'spades'),
+            new Card('7', 'clubs'),
+            new Card('2', 'spades'),
+            new Card('7', 'hearts'),
+            new Card('2', 'clubs'),
+            new Card('7', 'spades'),
+            new Card('D', 'clubs'),
+            new Card('2', 'hearts'),
+            new Card('V', 'clubs'),
+            new Card('3', 'clubs'),
+            new Card('D', 'hearts'),
+            new Card('T', 'spades'),
+            new Card('8', 'spades'),
+            new Card('9', 'clubs'),
+            new Card('5', 'diamonds'),
+            new Card('4', 'spades'),
+            new Card('K', 'hearts'),
+            new Card('9', 'spades'),
+            new Card('D', 'diamonds'),
+            new Card('4', 'clubs'),
+            new Card('5', 'clubs'),
+            new Card('5', 'hearts'),
+            new Card('8', 'hearts'),
+            new Card('2', 'diamonds'),
+            new Card('6', 'hearts'),
+            new Card('V', 'hearts'),
+        );
+    }
 
 }
