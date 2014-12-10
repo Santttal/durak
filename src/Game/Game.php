@@ -1,19 +1,41 @@
 <?php
 
+namespace Game;
+
+use Game\States\State;
+use Game\States\StateFinished;
+use Game\States\StateReady;
+use Game\States\StateWaitForAttack;
+use Game\States\StateWaitForDefend;
+
+/**
+ * @property State $state
+ * @property Card $trump
+ * @property CardsPair[] $cardsOnTheTable
+ */
 class Game
 {
     const PLAYER_CARDS_NUMBER = 6;
+
+    const STATE_READY = 1;
+    const STATE_WAIT_FOR_ATTACK = 2;
+    const STATE_WAIT_FOR_DEFEND = 3;
+    const STATE_GAME_FINISHED = 4;
 
     private $cardTypes;
     private $suites;
 
     private $cards = array();
-    private $playersCards = array();
-    private $cardsOnTheTable = array();
-    private $playersNumber;
+    public $playersCards = array();
+    public $cardsOnTheTable = array();
+    public $playersNumber;
     public $currentPlayer = 0;
+    public $attackPlayer = 0;
+    public $defendPlayer = 0;
     private $nextCardInPack = 0;
     public $trump; //козырь
+
+    private $state;
 
     public function __construct($playersNumber)
     {
@@ -22,16 +44,12 @@ class Game
         $this->suites = DurakConfig::getCardSuites();
         $this->createCards();
         $this->dealCards();
+        $this->setState(Game::STATE_READY);
     }
 
     public function getPlayerCards($playerNumber)
     {
         return $this->playersCards[$playerNumber];
-    }
-
-    public function getCurrentPlayer()
-    {
-        return $this->currentPlayer;
     }
 
     private function dealCards()
@@ -44,18 +62,30 @@ class Game
         $this->trump = $this->cards[$this->nextCardInPack++];
     }
 
-    public function makeAttack($cardNumber)
+    public function getUnBeatedCard()
     {
-        $this->cardsOnTheTable[] = array(
-            'attack' => $this->playersCards[$this->currentPlayer][$cardNumber],
-            'beat' => '',
-        );
-        array_splice($this->playersCards[$this->currentPlayer], $cardNumber, 1);
+        $card = null;
+        $lastCardsPair = $this->cardsOnTheTable[count($this->cardsOnTheTable) - 1];
+        if (!$lastCardsPair->isBeated()) {
+            $card = $lastCardsPair->getAttackCard();
+        }
+
+        return $card;
     }
 
-    public function beatAttack()
+    public function startTurn()
     {
+        $this->state->startTurn();
+    }
 
+    public function attack($cardNumber)
+    {
+        $this->state->attack($cardNumber);
+    }
+
+    public function defend($cardNumber)
+    {
+        $this->state->defend($cardNumber);
     }
 
     public function takeCards()
@@ -72,44 +102,40 @@ class Game
     /**
      * @param Card $attackCard
      * @param Card $defendCard
+     * @return bool
      */
     public function canBeat($attackCard, $defendCard)
     {
         $canBeat = false;
 
-        if ($attackCard->suite == $defendCard->suite) {
-
-        } else {
-
+        if (CardPriority::isFirstCardHigher($defendCard, $attackCard, $this->trump->getSuite())) {
+            $canBeat = true;
         }
 
+        return $canBeat;
+    }
 
-        if ($attackCard->suite == $this->trump->suite && $defendCard->suite == $this->trump->suite) {
-
-        } elseif ($attackCard->suite == $this->trump->suite && $defendCard->suite != $this->trump->suite) {
-            $canBeat = false;
-        } elseif ($attackCard->suite != $this->trump->suite && $defendCard->suite == $this->trump->suite) {
-            $canBeat = true;
-        } else {
-            if (
-                ($attackCard->suite == $defendCard->suite)
-                && array_search($attackCard->type, $this->cardTypes) <
-                   array_search($defendCard->type, $this->cardTypes)
-            ) {
-                $canBeat = true;
-            }
+    public function setState($state)
+    {
+        if ($state == Game::STATE_READY) {
+            $this->state = new StateReady($this);
+        } elseif ($state == Game::STATE_WAIT_FOR_ATTACK) {
+            $this->state = new StateWaitForAttack($this);
+        } elseif ($state == Game::STATE_WAIT_FOR_DEFEND) {
+            $this->state = new StateWaitForDefend($this);
+        } elseif ($state == Game::STATE_GAME_FINISHED) {
+            $this->state = new StateFinished($this);
         }
     }
 
-    function finishStep()
+    public function endTurn()
     {
-        unset($this->cardsOnTheTable);
-        $this->currentPlayer = $this->getNextPlayer();
+        $this->state->endTurn();
     }
 
     //private function isCard
 
-    private function getNextPlayer()
+    public function getNextPlayer()
     {
         return $this->currentPlayer + 1 <> $this->playersNumber ? $this->currentPlayer + 1 : 0;
     }

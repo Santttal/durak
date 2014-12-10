@@ -1,5 +1,9 @@
 <?php
 
+use Game\Card;
+use Game\CardPriority;
+use Game\Game;
+
 class CardPriorityTest extends PHPUnit_Framework_TestCase
 {
 

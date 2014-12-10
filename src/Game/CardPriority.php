@@ -1,10 +1,14 @@
 <?php
 
+namespace Game;
+
 class CardPriority
 {
     /**
      * @param Card $c1
      * @param Card $c2
+     * @param String $trumpStr
+     * @return bool
      */
     public static function isFirstCardHigher(Card $c1, Card $c2, $trumpStr) {
         $isFirstCardHigher = false;
@@ -20,13 +24,13 @@ class CardPriority
 
     private static function hasSameSuite(Card $c1, Card $c2)
     {
-        return $c1->suite == $c2->suite;
+        return $c1->getSuite() == $c2->getSuite();
     }
 
     private static function hasFirstCardHigherType(Card $c1, Card $c2)
     {
         $cardTypes = DurakConfig::getCardTypes();
-        return array_search($c1->type, $cardTypes) > array_search($c2->type, $cardTypes);
+        return array_search($c1->getType(), $cardTypes) > array_search($c2->getType(), $cardTypes);
     }
 
     /**
@@ -36,6 +40,6 @@ class CardPriority
      */
     private static function isCardTrump(Card $c, $trumpStr)
     {
-        return $c->suite == $trumpStr;
+        return $c->getSuite() == $trumpStr;
     }
 }

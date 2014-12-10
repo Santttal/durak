@@ -5,6 +5,7 @@ class GameTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        require_once "../../vendor/autoload.php";
         $this->game = new Game(2);
     }
 
@@ -60,7 +61,7 @@ class GameTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($this->game->getPlayerCards(0), $player_0_cards);
         $this->assertEquals($this->game->getPlayerCards(1), $player_1_cards);
-        $this->assertEquals($this->game->getCurrentPlayer(), 0);
+        $this->assertEquals($this->game->currentPlayer, 0);
     }
 
 }
